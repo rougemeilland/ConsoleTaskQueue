@@ -39,20 +39,17 @@ namespace ConsoleTask.CUI
                     var newArgs = new List<string>();
                     var pathEnvironmentVariables = new List<string>();
                     var environmentVariables = new List<(string Name, string Value)>();
-                    var isRawCommandParameter = false;
                     if (args.Length == 1 && args[0] == "list")
                     {
+                        newArgs.Add(args[0]);
                     }
                     else if (args.Length > 0 && args[0] == "add")
                     {
-                        for (var index = 0; index < args.Length; ++index)
+                        newArgs.Add(args[0]);
+                        for (var index = 1; index < args.Length; ++index)
                         {
                             var arg = args[index];
-                            if (isRawCommandParameter)
-                            {
-                                newArgs.Add(arg);
-                            }
-                            else if ((arg == "-p" || arg == "--pathenv") && index + 1 < args.Length)
+                            if ((arg == "-p" || arg == "--pathenv") && index + 1 < args.Length)
                             {
                                 pathEnvironmentVariables.Add(args[index + 1]);
                                 ++index;
@@ -65,13 +62,13 @@ namespace ConsoleTask.CUI
                                 environmentVariables.Add((match.Groups["name"].Value, match.Groups["value"].Value));
                                 ++index;
                             }
-                            else if (arg == "add")
+                            else if (arg.StartsWith('-'))
                             {
-                                isRawCommandParameter = true;
+                                throw new Exception($"Unsupported command option is specified.: \"{arg}\"");
                             }
                             else
                             {
-                                throw new Exception($"Unsupported command option is specified.: \"{arg}\"");
+                                newArgs.Add(arg);
                             }
                         }
                     }
