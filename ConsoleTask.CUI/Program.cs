@@ -39,30 +39,45 @@ namespace ConsoleTask.CUI
                     var newArgs = new List<string>();
                     var pathEnvironmentVariables = new List<string>();
                     var environmentVariables = new List<(string Name, string Value)>();
-                    for (var index = 0; index < args.Length; ++index)
+                    var isRawCommandParameter = false;
+                    if (args.Length == 1 && args[0] == "list")
                     {
-                        var arg = args[index];
-                        if ((arg == "-p" || arg == "--pathenv") && index + 1 < args.Length)
+                    }
+                    else if (args.Length > 0 && args[0] == "add")
+                    {
+                        for (var index = 0; index < args.Length; ++index)
                         {
-                            pathEnvironmentVariables.Add(args[index + 1]);
-                            ++index;
+                            var arg = args[index];
+                            if (isRawCommandParameter)
+                            {
+                                newArgs.Add(arg);
+                            }
+                            else if ((arg == "-p" || arg == "--pathenv") && index + 1 < args.Length)
+                            {
+                                pathEnvironmentVariables.Add(args[index + 1]);
+                                ++index;
+                            }
+                            else if ((arg == "-e" || arg == "--env") && index + 1 < args.Length)
+                            {
+                                var match = GetEnvironmentValuePattern().Match(args[index + 1]);
+                                if (!match.Success)
+                                    throw new Exception($"The environment variable specification is incorrect.: \"{args[index + 1]}\"");
+                                environmentVariables.Add((match.Groups["name"].Value, match.Groups["value"].Value));
+                                ++index;
+                            }
+                            else if (arg == "add")
+                            {
+                                isRawCommandParameter = true;
+                            }
+                            else
+                            {
+                                throw new Exception($"Unsupported command option is specified.: \"{arg}\"");
+                            }
                         }
-                        else if ((arg == "-e" || arg == "--env") && index + 1 < args.Length)
-                        {
-                            var match = GetEnvironmentValuePattern().Match(args[index + 1]);
-                            if (!match.Success)
-                                throw new Exception($"The environment variable specification is incorrect.: \"{args[index + 1]}\"");
-                            environmentVariables.Add((match.Groups["name"].Value, match.Groups["value"].Value));
-                            ++index;
-                        }
-                        else if (arg.StartsWith('-'))
-                        {
-                            throw new Exception($"Unsupported command option is specified.: \"{arg}\"");
-                        }
-                        else
-                        {
-                            newArgs.Add(arg);
-                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"Unsupported command option is specified.: \"{args[0]}\"");
                     }
 
                     using var queue = new ConsoleTaskQueue();
