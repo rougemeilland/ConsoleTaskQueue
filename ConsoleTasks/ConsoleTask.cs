@@ -36,8 +36,8 @@ namespace ConsoleTasks
             {
                 CommandFile = "";
                 ShellTypeText = "";
-                PathEnvironmentVariables = Array.Empty<string>();
-                EnvironmentVariables = Array.Empty<EnvironmentVariableModel>();
+                PathEnvironmentVariables = [];
+                EnvironmentVariables = [];
             }
 
             [JsonPropertyName("command_file")]
@@ -80,8 +80,8 @@ namespace ConsoleTasks
         {
             ShellType = shellType;
             CommandFile = commandFile ?? throw new ArgumentNullException(nameof(commandFile));
-            PathEnvironmentVariables = (pathEnvironmentVariables ?? throw new ArgumentNullException(nameof(pathEnvironmentVariables))).ToList();
-            EnvironmentVariables = (environmentVariables ?? throw new ArgumentNullException(nameof(environmentVariables))).ToList();
+            PathEnvironmentVariables = [.. pathEnvironmentVariables ?? throw new ArgumentNullException(nameof(pathEnvironmentVariables))];
+            EnvironmentVariables = [.. environmentVariables ?? throw new ArgumentNullException(nameof(environmentVariables))];
         }
 
         public ShellType ShellType { get; }
@@ -95,8 +95,8 @@ namespace ConsoleTasks
                 {
                     CommandFile = CommandFile.FullName,
                     ShellTypeText = ShellType.ToInternalName(),
-                    PathEnvironmentVariables = PathEnvironmentVariables.ToArray(),
-                    EnvironmentVariables = EnvironmentVariables.Select(item => new EnvironmentVariableModel { Name = item.Name, Value = item.Value }).ToArray(),
+                    PathEnvironmentVariables = [.. PathEnvironmentVariables],
+                    EnvironmentVariables = [.. EnvironmentVariables.Select(item => new EnvironmentVariableModel { Name = item.Name, Value = item.Value })],
                 },
                 typeof(Model),
                 ModelSourceGenerator.Default);
