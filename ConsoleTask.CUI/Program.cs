@@ -159,7 +159,7 @@ namespace ConsoleTask.CUI
                             }
                         }
 
-                        queue.Enqueue(new ConsoleTasks.ConsoleTask(commandFile, pathEnvironmentVariables, environmentVariables));
+                        queue.Enqueue(new ConsoleTasks.ConsoleTask(commandFile, new DirectoryPath(Environment.CurrentDirectory), pathEnvironmentVariables, environmentVariables));
 
                         ReportInformationMessage($"Task added.: \"{commandFile.FullName}\"");
                         return ResultCode.Success;

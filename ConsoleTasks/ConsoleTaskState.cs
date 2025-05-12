@@ -93,7 +93,7 @@ namespace ConsoleTasks
                 while (true)
                 {
                     var length = reader.Read(buffer);
-                    if (length < 0)
+                    if (length <= 0)
                         break;
                     writer.Write(buffer, 0, length);
                 }

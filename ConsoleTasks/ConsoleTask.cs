@@ -35,6 +35,7 @@ namespace ConsoleTasks
             public Model()
             {
                 CommandFile = "";
+                WorkingDirectory = "";
                 ShellTypeText = "";
                 PathEnvironmentVariables = [];
                 EnvironmentVariables = [];
@@ -42,6 +43,9 @@ namespace ConsoleTasks
 
             [JsonPropertyName("command_file")]
             public string CommandFile { get; set; }
+
+            [JsonPropertyName("working_directory")]
+            public string WorkingDirectory { get; set; }
 
             [JsonPropertyName("script_type")]
             public string ShellTypeText { get; set; }
@@ -71,21 +75,23 @@ namespace ConsoleTasks
         {
         }
 
-        public ConsoleTask(FilePath commandFile, IEnumerable<string> pathEnvironmentVariables, IEnumerable<(string Name, string Value)> environmentVariables)
-            : this(ParseShellType(commandFile, nameof(commandFile)), commandFile, pathEnvironmentVariables, environmentVariables)
+        public ConsoleTask(FilePath commandFile, DirectoryPath workingDirectory, IEnumerable<string> pathEnvironmentVariables, IEnumerable<(string Name, string Value)> environmentVariables)
+            : this(ParseShellType(commandFile, nameof(commandFile)), commandFile, workingDirectory, pathEnvironmentVariables, environmentVariables)
         {
         }
 
-        private ConsoleTask(ShellType shellType, FilePath commandFile, IEnumerable<string> pathEnvironmentVariables, IEnumerable<(string Name, string Value)> environmentVariables)
+        private ConsoleTask(ShellType shellType, FilePath commandFile, DirectoryPath workingDirectory, IEnumerable<string> pathEnvironmentVariables, IEnumerable<(string Name, string Value)> environmentVariables)
         {
             ShellType = shellType;
             CommandFile = commandFile ?? throw new ArgumentNullException(nameof(commandFile));
+            WorkingDirectory = workingDirectory ?? throw new ArgumentNullException(nameof(workingDirectory));
             PathEnvironmentVariables = [.. pathEnvironmentVariables ?? throw new ArgumentNullException(nameof(pathEnvironmentVariables))];
             EnvironmentVariables = [.. environmentVariables ?? throw new ArgumentNullException(nameof(environmentVariables))];
         }
 
         public ShellType ShellType { get; }
         public FilePath CommandFile { get; }
+        public DirectoryPath WorkingDirectory { get; }
         public IEnumerable<string> PathEnvironmentVariables { get; }
         public IEnumerable<(string Name, string Value)> EnvironmentVariables { get; }
 
@@ -94,6 +100,7 @@ namespace ConsoleTasks
                 new Model
                 {
                     CommandFile = CommandFile.FullName,
+                    WorkingDirectory = WorkingDirectory.FullName,
                     ShellTypeText = ShellType.ToInternalName(),
                     PathEnvironmentVariables = [.. PathEnvironmentVariables],
                     EnvironmentVariables = [.. EnvironmentVariables.Select(item => new EnvironmentVariableModel { Name = item.Name, Value = item.Value })],
@@ -110,6 +117,7 @@ namespace ConsoleTasks
                 : new ConsoleTask(
                     model.GetShellType(),
                     new FilePath(model.CommandFile),
+                    new DirectoryPath(model.WorkingDirectory),
                     model.PathEnvironmentVariables,
                     model.EnvironmentVariables.Select(item => (item.Name, item.Value)));
         }

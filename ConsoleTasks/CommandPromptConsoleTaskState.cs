@@ -8,23 +8,22 @@ namespace ConsoleTasks
         : ConsoleTaskState
     {
         private readonly ConsoleTask _task;
-        private readonly FilePath _taskFile;
         private readonly Encoding _encoding;
 
         public CommandPromptConsoleTaskState(ConsoleTask task, FilePath taskFile, TaskLockObject taskLockObject, Encoding encoding)
             : base(task, taskFile, taskLockObject, encoding)
         {
             _task = task;
-            _taskFile = taskFile;
             _encoding = encoding;
         }
 
         protected override FilePath CreateIntermediateScriptFile(DirectoryPath baseDirectory)
         {
-            var intermediateScriptFile = baseDirectory.GetFile($"{_taskFile.NameWithoutExtension}.bat");
+            var intermediateScriptFile = baseDirectory.GetFile($"{_task.CommandFile.NameWithoutExtension}.bat");
             using var writer = intermediateScriptFile.CreateText(_encoding);
             writer.WriteLine("@echo off");
             writer.WriteLine($"chcp {_encoding.CodePage}>NUL");
+            writer.WriteLine($"cd /d {_task.WorkingDirectory.FullName.CommandLineArgumentEncode()}");
             writer.WriteLine(_task.CommandFile.FullName.CommandLineArgumentEncode());
             return intermediateScriptFile;
         }

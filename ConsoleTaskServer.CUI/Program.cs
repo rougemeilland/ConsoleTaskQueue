@@ -34,7 +34,7 @@ namespace ConsoleTaskServer.CUI
                 {
                     using var queue = new ConsoleTaskQueue();
                     while (true)
-                        queue.DequeueAndExecute(_encoding, Waiting, Starting, Ending);
+                        queue.DequeueAndExecute(_encoding, Idling, Starting, Ending);
                 }
                 catch (OperationCanceledException)
                 {
@@ -57,7 +57,7 @@ namespace ConsoleTaskServer.CUI
                 }
             }
 
-            private void Waiting()
+            private void Idling()
             {
                 TinyConsole.Erase(ConsoleEraseMode.FromCursorToEndOfScreen);
 
