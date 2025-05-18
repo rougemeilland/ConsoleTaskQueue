@@ -48,9 +48,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Palmtree.Application" Version="1.6.2-alpha" />
-    <PackageReference Include="Palmtree.Core" Version="1.16.0-alpha" />
-    <PackageReference Include="Palmtree.IO.Console" Version="1.5.2-alpha" />
+    <PackageReference Include="Palmtree.Application" Version="1.6.4-alpha" />
+    <PackageReference Include="Palmtree.Core" Version="1.16.2-alpha" />
+    <PackageReference Include="Palmtree.IO.Console" Version="1.5.4-alpha" />
   </ItemGroup>
 
   <ItemGroup>

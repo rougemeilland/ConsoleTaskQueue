@@ -109,7 +109,7 @@ namespace ConsoleTasks
         public static ConsoleTaskState CreateInstance(ConsoleTask task, FilePath taskFile, TaskLockObject taskLockObject, Encoding encoding)
             => task.ShellType switch
             {
-                ShellType.CommandPrompt => new CommandPromptConsoleTaskState(task, taskFile, taskLockObject, encoding),
+                ShellType.CommandPrompt => OperatingSystem.IsWindows() ? new CommandPromptConsoleTaskState(task, taskFile, taskLockObject, encoding) : throw new InvalidOperationException(),
                 ShellType.PowerShell => new PowerShellConsoleTaskState(task, taskFile, taskLockObject, encoding),
                 _ => throw new NotSupportedException(),
             };

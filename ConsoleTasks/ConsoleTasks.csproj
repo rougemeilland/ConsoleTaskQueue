@@ -42,10 +42,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Palmtree.Core" Version="1.16.0-alpha" />
-    <PackageReference Include="Palmtree.IO" Version="1.12.2-alpha" />
-    <PackageReference Include="Palmtree.IO.Console" Version="1.5.2-alpha" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.0-preview.3.25171.5" />
+    <PackageReference Include="Palmtree.Core" Version="1.16.2-alpha" />
+    <PackageReference Include="Palmtree.IO" Version="1.12.4-alpha" />
+    <PackageReference Include="Palmtree.IO.Console" Version="1.5.4-alpha" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.0-preview.4.25258.110" />
   </ItemGroup>
 
 </Project>

@@ -123,10 +123,10 @@ namespace ConsoleTasks
         }
 
         private static ShellType ParseShellType(FilePath commandFile, string parameterName)
-            => string.Equals(commandFile.Extension, ".bat", StringComparison.OrdinalIgnoreCase)
+            => OperatingSystem.IsWindows() && string.Equals(commandFile.Extension, ".bat", StringComparison.OrdinalIgnoreCase)
                 ? ShellType.CommandPrompt
                 : string.Equals(commandFile.Extension, ".ps1", StringComparison.OrdinalIgnoreCase)
                 ? ShellType.PowerShell
-                : throw new ArgumentException($"The extension of \"{parameterName}\" is neither \".bat\" nor \".ps1\".", parameterName);
+                : throw new ArgumentException($"The extension of \"{parameterName}\" is not supported.", nameof(parameterName));
     }
 }
