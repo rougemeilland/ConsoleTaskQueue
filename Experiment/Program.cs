@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Experiment
 {
-    internal class Program
+    internal sealed class Program
     {
         static Program()
         {
@@ -14,7 +14,7 @@ namespace Experiment
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:未使用のパラメーターを削除します", Justification = "<保留中>")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0022:メソッドに式本体を使用する", Justification = "<保留中>")]
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Execute();
         }

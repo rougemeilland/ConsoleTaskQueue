@@ -10,9 +10,9 @@ using Palmtree.IO.Console;
 
 namespace ConsoleTask.CUI
 {
-    internal partial class Program
+    internal sealed partial class Program
     {
-        private partial class ClientApplication
+        private sealed partial class ClientApplication
             : ApplicationBase
         {
             private readonly string _title;
@@ -95,7 +95,7 @@ namespace ConsoleTask.CUI
                         if (!commandFile.Exists)
                             throw new Exception($"Script file does not exist.: \"{commandFile.FullName}\"");
 
-                        if (string.Equals(commandFile.Extension, ".ps1"))
+                        if (string.Equals(commandFile.Extension, ".ps1", StringComparison.Ordinal))
                         {
                             if (_encoding.CodePage == Encoding.UTF8.CodePage)
                             {
@@ -217,7 +217,10 @@ namespace ConsoleTask.CUI
             private static partial Regex GetEnvironmentValuePattern();
         }
 
-        static int Main(string[] args)
-            => new ClientApplication("Task Queue Client", Encoding.UTF8).Run(args);
+        private static int Main(string[] args)
+        {
+            TinyConsole.DefaultTextWriter = ConsoleTextWriterType.StandardError;
+            return new ClientApplication("Task Queue Client", Encoding.UTF8).Run(args);
+        }
     }
 }

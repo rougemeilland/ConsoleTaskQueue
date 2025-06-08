@@ -8,9 +8,9 @@ using Palmtree.Text;
 
 namespace ConsoleTaskServer.CUI
 {
-    internal class Program
+    internal sealed class Program
     {
-        private class ServerApplication
+        private sealed class ServerApplication
             : ApplicationBase
         {
             private readonly string _title;
@@ -96,8 +96,9 @@ namespace ConsoleTaskServer.CUI
             }
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
+            TinyConsole.DefaultTextWriter = ConsoleTextWriterType.StandardError;
             var currentDirectory = Environment.CurrentDirectory;
             try
             {

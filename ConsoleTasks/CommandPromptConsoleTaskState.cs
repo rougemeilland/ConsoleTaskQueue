@@ -6,7 +6,7 @@ using Palmtree.IO;
 namespace ConsoleTasks
 {
     [SupportedOSPlatform("windows")]
-    internal class CommandPromptConsoleTaskState
+    internal sealed class CommandPromptConsoleTaskState
         : ConsoleTaskState
     {
         private readonly ConsoleTask _task;
@@ -25,8 +25,8 @@ namespace ConsoleTasks
             using var writer = intermediateScriptFile.CreateText(_encoding);
             writer.WriteLine("@echo off");
             writer.WriteLine($"chcp {_encoding.CodePage}>NUL");
-            writer.WriteLine($"cd /d {_task.WorkingDirectory.FullName.CommandLineArgumentEncode().CommandPromptCommandLineArgumentEncode()}");
-            writer.WriteLine(_task.CommandFile.FullName.CommandLineArgumentEncode().CommandPromptCommandLineArgumentEncode());
+            writer.WriteLine($"cd /d {_task.WorkingDirectory.FullName.EncodeCommandLineArgument()}");
+            writer.WriteLine(_task.CommandFile.FullName.EncodeCommandLineArgument());
             return intermediateScriptFile;
         }
 
@@ -35,7 +35,7 @@ namespace ConsoleTasks
         protected override string GetShellParameter(DirectoryPath baseDirectory, FilePath intermediateScriptFile)
         {
             Validation.Assert(intermediateScriptFile.Directory.FullName == baseDirectory.FullName, "intermediateScriptFile.Directory.FullName == baseDirectory.FullName");
-            return $"/c {intermediateScriptFile.Name.CommandLineArgumentEncode().CommandPromptCommandLineArgumentEncode()}";
+            return $"/c {intermediateScriptFile.Name.EncodeCommandLineArgument()}";
         }
     }
 }

@@ -4,7 +4,7 @@ using Palmtree.IO;
 
 namespace ConsoleTasks
 {
-    internal class PowerShellConsoleTaskState
+    internal sealed class PowerShellConsoleTaskState
         : ConsoleTaskState
     {
         private readonly ConsoleTask _task;

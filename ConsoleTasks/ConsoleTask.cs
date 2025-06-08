@@ -10,7 +10,7 @@ namespace ConsoleTasks
 {
     public partial class ConsoleTask
     {
-        private class EnvironmentVariableModel
+        private sealed class EnvironmentVariableModel
         {
             public EnvironmentVariableModel()
             {
@@ -25,7 +25,7 @@ namespace ConsoleTasks
             public string Value { get; set; }
         }
 
-        private class Model
+        private sealed class Model
         {
             static Model()
             {
@@ -70,7 +70,7 @@ namespace ConsoleTasks
         [JsonSourceGenerationOptions(WriteIndented = true)]
         [JsonSerializable(typeof(Model))]
         [JsonSerializable(typeof(EnvironmentVariableModel))]
-        private partial class ModelSourceGenerator
+        private sealed partial class ModelSourceGenerator
             : JsonSerializerContext
         {
         }

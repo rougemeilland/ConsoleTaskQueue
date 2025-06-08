@@ -48,10 +48,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Palmtree.Application" Version="1.6.4-alpha" />
-    <PackageReference Include="Palmtree.Core" Version="1.16.2-alpha" />
-    <PackageReference Include="Palmtree.IO.Console" Version="1.5.4-alpha" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.0-preview.4.25258.110" />
+    <PackageReference Include="Palmtree.Application" Version="1.6.10-alpha" />
+    <PackageReference Include="Palmtree.Core" Version="1.17.1-alpha" />
+    <PackageReference Include="Palmtree.IO.Console" Version="1.6.0-alpha" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.0-preview.5.25277.114" />
   </ItemGroup>
 
   <ItemGroup>

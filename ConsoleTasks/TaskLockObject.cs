@@ -4,7 +4,7 @@ using Palmtree.IO;
 
 namespace ConsoleTasks
 {
-    internal class TaskLockObject
+    internal sealed class TaskLockObject
         : IDisposable
     {
         private readonly Mutex _lockObject;
@@ -69,7 +69,7 @@ namespace ConsoleTasks
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!_isDisposed)
             {
