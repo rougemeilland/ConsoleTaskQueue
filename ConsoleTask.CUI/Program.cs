@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using ConsoleTasks;
+using Palmtree;
 using Palmtree.Application;
 using Palmtree.IO;
 using Palmtree.IO.Console;
@@ -58,13 +59,13 @@ namespace ConsoleTask.CUI
                             {
                                 var match = GetEnvironmentValuePattern().Match(args[index + 1]);
                                 if (!match.Success)
-                                    throw new Exception($"The environment variable specification is incorrect.: \"{args[index + 1]}\"");
+                                    throw new ApplicationException($"The environment variable specification is incorrect.: \"{args[index + 1]}\"");
                                 environmentVariables.Add((match.Groups["name"].Value, match.Groups["value"].Value));
                                 ++index;
                             }
                             else if (arg.StartsWith('-'))
                             {
-                                throw new Exception($"Unsupported command option is specified.: \"{arg}\"");
+                                throw new ApplicationException($"Unsupported command option is specified.: \"{arg}\"");
                             }
                             else
                             {
@@ -74,7 +75,7 @@ namespace ConsoleTask.CUI
                     }
                     else
                     {
-                        throw new Exception($"Unsupported command option is specified.: \"{args[0]}\"");
+                        throw new ApplicationException($"Unsupported command option is specified.: \"{args[0]}\"");
                     }
 
                     using var queue = new ConsoleTaskQueue();
@@ -93,7 +94,7 @@ namespace ConsoleTask.CUI
 
                         var commandFile = GetFilePath(newArgs[1]);
                         if (!commandFile.Exists)
-                            throw new Exception($"Script file does not exist.: \"{commandFile.FullName}\"");
+                            throw new ApplicationException($"Script file does not exist.: \"{commandFile.FullName}\"");
 
                         if (string.Equals(commandFile.Extension, ".ps1", StringComparison.Ordinal))
                         {
@@ -106,7 +107,7 @@ namespace ConsoleTask.CUI
                                     || buffer[1] != 0xbb
                                     || buffer[2] != 0xbf)
                                 {
-                                    throw new Exception("BOM must be present if the powershell script file is in UTF-8 encoding.");
+                                    throw new ApplicationException("BOM must be present if the powershell script file is in UTF-8 encoding.");
                                 }
                             }
                             else if (_encoding.CodePage == Encoding.Unicode.CodePage)
@@ -117,7 +118,7 @@ namespace ConsoleTask.CUI
                                     || buffer[0] != 0xff
                                     || buffer[1] != 0xfe)
                                 {
-                                    throw new Exception("BOM must be present if the powershell script file is in UTF-16 encoding.");
+                                    throw new ApplicationException("BOM must be present if the powershell script file is in UTF-16 encoding.");
                                 }
                             }
                             else if (_encoding.CodePage == Encoding.BigEndianUnicode.CodePage)
@@ -128,7 +129,7 @@ namespace ConsoleTask.CUI
                                     || buffer[0] != 0xfe
                                     || buffer[1] != 0xff)
                                 {
-                                    throw new Exception("BOM must be present if the powershell script file is in UTF-16 encoding.");
+                                    throw new ApplicationException("BOM must be present if the powershell script file is in UTF-16 encoding.");
                                 }
                             }
                             else if (_encoding.CodePage == Encoding.UTF32.CodePage)
@@ -141,7 +142,7 @@ namespace ConsoleTask.CUI
                                     || buffer[2] != 0x00
                                     || buffer[3] != 0x00)
                                 {
-                                    throw new Exception("BOM must be present if the powershell script file is in UTF-32 encoding.");
+                                    throw new ApplicationException("BOM must be present if the powershell script file is in UTF-32 encoding.");
                                 }
                             }
                             else if (_encoding.CodePage == Encoding.GetEncoding("utf-32BE").CodePage)
@@ -154,7 +155,7 @@ namespace ConsoleTask.CUI
                                     || buffer[2] != 0xfe
                                     || buffer[3] != 0xff)
                                 {
-                                    throw new Exception("BOM must be present if the powershell script file is in UTF-32 encoding.");
+                                    throw new ApplicationException("BOM must be present if the powershell script file is in UTF-32 encoding.");
                                 }
                             }
                         }
@@ -208,7 +209,7 @@ namespace ConsoleTask.CUI
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Not a valid file path name.: \"{arg}\"", ex);
+                    throw new ApplicationException($"Not a valid file path name.: \"{arg}\"", ex);
                 }
             }
 
@@ -219,6 +220,14 @@ namespace ConsoleTask.CUI
 
         private static int Main(string[] args)
         {
+            if (TinyConsole.InputEncoding.CodePage != Encoding.UTF8.CodePage || TinyConsole.OutputEncoding.CodePage != Encoding.UTF8.CodePage)
+            {
+                if (OperatingSystem.IsWindows())
+                    TinyConsole.WriteLog(LogCategory.Warning, "The encoding of standard input or output is not UTF8. Consider running the command \"chcp 65001\".");
+                else
+                    TinyConsole.WriteLog(LogCategory.Warning, "The encoding of standard input or standard output is not UTF8.");
+            }
+
             TinyConsole.DefaultTextWriter = ConsoleTextWriterType.StandardError;
             return new ClientApplication("Task Queue Client", Encoding.UTF8).Run(args);
         }

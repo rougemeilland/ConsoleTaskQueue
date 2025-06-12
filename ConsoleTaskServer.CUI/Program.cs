@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using ConsoleTasks;
+using Palmtree;
 using Palmtree.Application;
 using Palmtree.IO;
 using Palmtree.IO.Console;
@@ -98,6 +99,14 @@ namespace ConsoleTaskServer.CUI
 
         private static void Main(string[] args)
         {
+            if (TinyConsole.InputEncoding.CodePage != Encoding.UTF8.CodePage || TinyConsole.OutputEncoding.CodePage != Encoding.UTF8.CodePage)
+            {
+                if (OperatingSystem.IsWindows())
+                    TinyConsole.WriteLog(LogCategory.Warning, "The encoding of standard input or output is not UTF8. Consider running the command \"chcp 65001\".");
+                else
+                    TinyConsole.WriteLog(LogCategory.Warning, "The encoding of standard input or standard output is not UTF8.");
+            }
+
             TinyConsole.DefaultTextWriter = ConsoleTextWriterType.StandardError;
             var currentDirectory = Environment.CurrentDirectory;
             try

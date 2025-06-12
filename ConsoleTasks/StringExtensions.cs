@@ -12,7 +12,9 @@ namespace ConsoleTasks
                 : Encode(arg);
 
             static string Encode(string s)
-                => GetPowerShellSpecialCharactersPattern().Replace(s, m => $"`{m.Value}");
+            {
+                return GetPowerShellSpecialCharactersPattern().Replace(s, m => $"`{m.Value}");
+            }
         }
 
         [GeneratedRegex(@"[ @""&$*%?()-]", RegexOptions.Compiled)]

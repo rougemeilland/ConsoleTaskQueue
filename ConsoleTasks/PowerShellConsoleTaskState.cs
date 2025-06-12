@@ -31,7 +31,7 @@ namespace ConsoleTasks
 
         protected override string GetShellParameter(DirectoryPath baseDirectory, FilePath intermediateScriptFile)
         {
-            Validation.Assert(intermediateScriptFile.Directory.FullName == baseDirectory.FullName, "intermediateScriptFile.Directory.FullName == baseDirectory.FullName");
+            Validation.Assert(intermediateScriptFile.Directory.FullName == baseDirectory.FullName);
             return $"-ExecutionPolicy Unrestricted -File {intermediateScriptFile.Name.PowerShellCommandLineArgumentEncode()}";
         }
     }
