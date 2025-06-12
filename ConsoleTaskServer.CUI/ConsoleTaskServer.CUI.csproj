@@ -12,13 +12,28 @@
     <AssemblyName>task_server</AssemblyName>
     <PublishAot>True</PublishAot>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0|AnyCPU'">
+    <WarningsNotAsErrors>IL3000</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
+    <WarningsNotAsErrors>IL3000</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0|AnyCPU'">
+    <WarningsNotAsErrors>IL3000</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
     <WarningsNotAsErrors>IL3000</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Palmtree.Application" Version="1.6.12-alpha" />
-    <PackageReference Include="Palmtree.Core" Version="1.18.0-alpha" />
-    <PackageReference Include="Palmtree.IO.Console" Version="1.7.0-alpha" />
+    <PackageReference Include="Palmtree.Application" Version="1.6.13-alpha" />
+    <PackageReference Include="Palmtree.Core" Version="1.19.0-alpha" />
+    <PackageReference Include="Palmtree.IO.Console" Version="1.7.1-alpha" />
   </ItemGroup>
 
   <ItemGroup>
