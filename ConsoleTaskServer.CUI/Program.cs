@@ -9,7 +9,7 @@ using Palmtree.Text;
 
 namespace ConsoleTaskServer.CUI
 {
-    internal sealed class Program
+    internal static class Program
     {
         private sealed class ServerApplication
             : ApplicationBase

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Experiment
 {
-    internal sealed class Program
+    internal static class Program
     {
         static Program()
         {

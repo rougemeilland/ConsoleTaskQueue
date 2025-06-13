@@ -11,7 +11,7 @@ using Palmtree.IO.Console;
 
 namespace ConsoleTask.CUI
 {
-    internal sealed partial class Program
+    internal static partial class Program
     {
         private sealed partial class ClientApplication
             : ApplicationBase
