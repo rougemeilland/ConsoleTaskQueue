@@ -21,7 +21,7 @@ namespace ConsoleTasks
 
         protected override FilePath CreateIntermediateScriptFile(DirectoryPath baseDirectory)
         {
-            var intermediateScriptFile = baseDirectory.GetFile($"{_task.CommandFile.NameWithoutExtension}.bat");
+            var intermediateScriptFile = baseDirectory.CreateUniqueFile(suffix: ".bat");
             using var writer = intermediateScriptFile.CreateText(_encoding);
             writer.WriteLine("@echo off");
             writer.WriteLine($"chcp {_encoding.CodePage}>NUL");

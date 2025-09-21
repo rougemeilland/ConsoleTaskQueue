@@ -19,7 +19,7 @@ namespace ConsoleTasks
 
         protected override FilePath CreateIntermediateScriptFile(DirectoryPath baseDirectory)
         {
-            var intermediateScriptFile = baseDirectory.GetFile($"{_task.CommandFile.NameWithoutExtension}.bat");
+            var intermediateScriptFile = baseDirectory.CreateUniqueFile(suffix: ".ps1");
             using var writer = intermediateScriptFile.CreateText(_encoding);
             writer.WriteLine($"[Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding({_encoding.CodePage})");
             writer.WriteLine($"Set-Location -Path {_task.WorkingDirectory.FullName.PowerShellCommandLineArgumentEncode()}");

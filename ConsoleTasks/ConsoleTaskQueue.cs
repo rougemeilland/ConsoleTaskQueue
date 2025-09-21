@@ -40,16 +40,9 @@ namespace ConsoleTasks
             _lockObject.LockMutex();
             try
             {
-                for (var count = 0; ; ++count)
-                {
-                    var taskFileName = $"{Environment.TickCount64}-{count}.json";
-                    var taskFile = BaseDirectory.GetFile(taskFileName);
-                    if (!taskFile.Exists)
-                    {
-                        taskFile.WriteAllText(task.Serialize());
-                        return;
-                    }
-                }
+                var now = DateTime.UtcNow;
+                var taskFile = BaseDirectory.CreateUniqueFile(prefix: $"{now.Year:d4}-{now.Month:d2}-{now.Day:d2}T{now.Hour:d2}{now.Minute:d2}{now.Second:d2}.{now.Millisecond:d3}-", suffix: ".json");
+                taskFile.WriteAllText(task.Serialize());
             }
             finally
             {
