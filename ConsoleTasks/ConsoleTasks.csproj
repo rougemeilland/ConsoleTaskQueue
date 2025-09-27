@@ -11,10 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Palmtree.Core" Version="1.19.2-alpha" />
-    <PackageReference Include="Palmtree.IO" Version="1.19.3-alpha" />
-    <PackageReference Include="Palmtree.IO.Console" Version="1.7.3-alpha" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.0-preview.7.25380.108" />
+    <PackageReference Include="Palmtree.Core" Version="1.20.1-alpha" />
+    <PackageReference Include="Palmtree.IO" Version="1.19.4-alpha" />
+    <PackageReference Include="Palmtree.IO.Console" Version="1.7.4-alpha" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.0-rc.1.25451.107" />
   </ItemGroup>
 
 </Project>
