@@ -41,6 +41,10 @@ namespace ConsoleTaskServer.CUI
                 {
                     return ResultCode.Cancelled;
                 }
+                finally
+                {
+                    TinyConsole.Beep();
+                }
             }
 
             protected override void Finish(ResultCode result, bool isLaunchedByConsoleApplicationLauncher)
