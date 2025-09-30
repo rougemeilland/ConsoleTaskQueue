@@ -41,7 +41,7 @@ namespace ConsoleTask.CUI
                     var newArgs = new List<string>();
                     var pathEnvironmentVariables = new List<string>();
                     var environmentVariables = new List<(string Name, string Value)>();
-                    if (args.Length == 1 && args[0] == "list")
+                    if (args.Length == 1 && args[0] is "list" or "stop")
                     {
                         newArgs.Add(args[0]);
                     }
