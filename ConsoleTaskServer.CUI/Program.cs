@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using ConsoleTasks;
 using Palmtree;
 using Palmtree.Application;
@@ -43,6 +45,10 @@ namespace ConsoleTaskServer.CUI
                 }
                 finally
                 {
+                    TinyConsole.Beep();
+                    Thread.Sleep(TimeSpan.FromSeconds(0.5));
+                    TinyConsole.Beep();
+                    Thread.Sleep(TimeSpan.FromSeconds(0.5));
                     TinyConsole.Beep();
                 }
             }
