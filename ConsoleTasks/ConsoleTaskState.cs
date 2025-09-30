@@ -21,8 +21,10 @@ namespace ConsoleTasks
             _taskFile = taskFile;
             _lockObject = taskLockObject;
             _encoding = encoding;
+            TaskId = taskFile.NameWithoutExtension.ToUpperInvariant();
         }
 
+        public string TaskId { get; }
         public FilePath CommandFile => _task.CommandFile;
 
         public void Execute()

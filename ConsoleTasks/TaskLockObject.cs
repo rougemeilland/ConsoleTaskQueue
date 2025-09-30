@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Palmtree.IO;
 
 namespace ConsoleTasks
 {
@@ -15,13 +14,13 @@ namespace ConsoleTasks
             _lockObject = lockObject;
         }
 
-        public static TaskLockObject? Lock(FilePath taskFile)
+        public static TaskLockObject? Lock(string taskId)
         {
             var success = false;
             var lockObject = (Mutex?)null;
             try
             {
-                lockObject = new Mutex(false, $"{ConsoleTaskQueue.LockObjectNamePrefix}.task.{taskFile.NameWithoutExtension}");
+                lockObject = CreateLockObject(taskId);
                 while (true)
                 {
                     try
@@ -63,11 +62,40 @@ namespace ConsoleTasks
         public void Unlock()
             => Dispose();
 
+        public static bool IsLocked(string taskId)
+        {
+            var lockObject = (Mutex?)null;
+            try
+            {
+                lockObject = CreateLockObject(taskId);
+                return !lockObject.TryLockMutex();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                try
+                {
+                    lockObject?.UnlockMutex();
+                }
+                catch (Exception)
+                {
+                }
+
+                lockObject?.Dispose();
+            }
+        }
+
         public void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        private static Mutex CreateLockObject(string taskId)
+            => new(false, $"{Constants.InterProcessResourceNamePrefix}.lockTask.{taskId}");
 
         private void Dispose(bool disposing)
         {

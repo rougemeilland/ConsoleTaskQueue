@@ -12,11 +12,10 @@ namespace ConsoleTasks
     public class ConsoleTaskQueue
         : IDisposable
     {
-        internal static readonly string LockObjectNamePrefix = $"{typeof(ConsoleTaskQueue).FullName}-{{127006A4-719F-4ED8-AA99-F5F3828E55F9}}";
-
         private static readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(1);
 
         private readonly Mutex _lockObject;
+        private readonly EventWaitHandle _stopEventObject;
         private bool _isDisposed;
 
         static ConsoleTaskQueue()
@@ -29,7 +28,8 @@ namespace ConsoleTasks
 
         public ConsoleTaskQueue()
         {
-            _lockObject = new Mutex(false, $"{LockObjectNamePrefix}.queue");
+            _lockObject = new Mutex(false, $"{Constants.InterProcessResourceNamePrefix}.lockQueue");
+            _stopEventObject = new EventWaitHandle(false, EventResetMode.ManualReset, $"{Constants.InterProcessResourceNamePrefix}.stopServer");
             _isDisposed = false;
         }
 
@@ -53,29 +53,48 @@ namespace ConsoleTasks
         public IEnumerable<ConsoleTask> EnumerateConsoleTasks()
         {
             _lockObject.LockMutex();
-            var tasks = new List<ConsoleTask>();
+            var result = new List<ConsoleTask>();
             try
             {
-                foreach (var (_, jsonText) in EnumerateConsoleTaskFiles())
-                {
-                    var task = ConsoleTask.Deserialize(jsonText);
-                    if (task is not null)
-                        tasks.Add(task);
-                }
-
-                return tasks;
+                return
+                    EnumerateTasks()
+                    .OrderBy(item => item.taskFile.LastWriteTimeUtc)
+                    .ThenBy(item => item.task.RegisteredDateTime)
+                    .Select(item => item.task)
+                    .ToList();
             }
             finally
             {
                 _lockObject.UnlockMutex();
             }
+
+            static IEnumerable<(ConsoleTask task, FilePath taskFile)> EnumerateTasks()
+            {
+                foreach (var (taskFile, jsonText) in EnumerateConsoleTaskFiles())
+                {
+                    var task = ConsoleTask.Deserialize(taskFile, jsonText);
+                    if (task is not null)
+                        yield return (task, taskFile);
+                }
+            }
         }
+
+        public void StopAllServers() => _stopEventObject.Set();
 
         public void DequeueAndExecute(Encoding encoding, Action waiting, Action<FilePath> starting, Action<FilePath> ending)
         {
+            if (_stopEventObject.WaitOne(0))
+                throw new OperationCanceledException();
             var taskState = Dequeue(encoding, waiting);
+            var taskSharedMemoryHandle = (SharedMemoryHandle<ActiveTaskInformation.Model>?)null;
             try
             {
+                if (OperatingSystem.IsWindows())
+                {
+                    taskSharedMemoryHandle = SharedMemoryHandle<ActiveTaskInformation.Model>.CreateNew(GetTaskResourceName(taskState.TaskId));
+                    taskSharedMemoryHandle.Value = new ActiveTaskInformation(TaskStatus.Running, DateTime.UtcNow).ToModel();
+                }
+
                 starting(taskState.CommandFile);
                 taskState.Execute();
                 ending(taskState.CommandFile);
@@ -85,7 +104,30 @@ namespace ConsoleTasks
                 _lockObject.LockMutex();
                 try
                 {
-                    taskState.Complete();
+                    try
+                    {
+                        taskState.Complete();
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    try
+                    {
+                        if (taskSharedMemoryHandle is not null)
+                            taskSharedMemoryHandle.Value = new ActiveTaskInformation(TaskStatus.Completed, Constants.NotAvailableDateTime).ToModel();
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    try
+                    {
+                        taskSharedMemoryHandle?.Dispose();
+                    }
+                    catch (Exception)
+                    {
+                    }
                 }
                 finally
                 {
@@ -93,6 +135,28 @@ namespace ConsoleTasks
                 }
             }
         }
+
+        internal static ActiveTaskInformation? GetAdditionalTaskInfo(string taskId)
+        {
+            if (!OperatingSystem.IsWindows())
+                return null;
+            var taskSharedMemoryHandle = (SharedMemoryHandle<ActiveTaskInformation.Model>?)null;
+            try
+            {
+                taskSharedMemoryHandle = SharedMemoryHandle<ActiveTaskInformation.Model>.OpenExisting(GetTaskResourceName(taskId));
+                return ActiveTaskInformation.FromModel(taskSharedMemoryHandle.Value);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            finally
+            {
+                taskSharedMemoryHandle?.Dispose();
+            }
+        }
+
+        private static string GetTaskResourceName(string taskId) => $".taskInfo.{taskId}";
 
         private ConsoleTaskState Dequeue(Encoding encoding, Action waiting)
         {
@@ -120,10 +184,10 @@ namespace ConsoleTasks
             => EnumerateConsoleTaskFiles()
                 .Select(item =>
                 {
-                    var task = ConsoleTask.Deserialize(item.jsonText);
+                    var task = ConsoleTask.Deserialize(item.taskFile, item.jsonText);
                     if (task is null)
                         return null;
-                    var lockObject = TaskLockObject.Lock(item.taskFile);
+                    var lockObject = TaskLockObject.Lock(item.taskFile.NameWithoutExtension.ToUpperInvariant());
                     if (lockObject is null)
                         return null;
                     return ConsoleTaskState.CreateInstance(task, item.taskFile, lockObject, encoding);
@@ -133,16 +197,18 @@ namespace ConsoleTasks
 
         private static IEnumerable<(FilePath taskFile, string jsonText)> EnumerateConsoleTaskFiles()
             => BaseDirectory.EnumerateFiles()
-                .Where(file => string.Equals(file.Extension, ".json", StringComparison.OrdinalIgnoreCase))
-                .Select(file =>
+                .Select(taskFile => (taskFile, dateTime: taskFile.LastWriteTimeUtc))
+                .Where(item => string.Equals(item.taskFile.Extension, ".json", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(item => item.taskFile.LastWriteTimeUtc)
+                .Select(item =>
                 {
                     try
                     {
-                        return (file, file.ReadAllText());
+                        return (item.taskFile, item.taskFile.ReadAllText());
                     }
                     catch (IOException)
                     {
-                        return ((FilePath taskFile, string jsonText)?)null;
+                        return ((FilePath taskFile, string jsonTex)?)null;
                     }
                 })
                 .WhereNotNull();
@@ -159,6 +225,7 @@ namespace ConsoleTasks
             {
                 if (disposing)
                 {
+                    _stopEventObject.Dispose();
                     _lockObject.Dispose();
                 }
 

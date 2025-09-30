@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -160,7 +161,7 @@ namespace ConsoleTask.CUI
                             }
                         }
 
-                        queue.Enqueue(new ConsoleTasks.ConsoleTask(commandFile, new DirectoryPath(Environment.CurrentDirectory), pathEnvironmentVariables, environmentVariables));
+                        queue.Enqueue(new ConsoleTasks.ConsoleTask("", commandFile, new DirectoryPath(Environment.CurrentDirectory), pathEnvironmentVariables, environmentVariables, DateTime.UtcNow));
 
                         ReportInformationMessage($"Task added.: \"{commandFile.FullName}\"");
                         return ResultCode.Success;
@@ -173,8 +174,25 @@ namespace ConsoleTask.CUI
                             return ResultCode.Failed;
                         }
 
+                        var now = DateTime.UtcNow;
                         foreach (var task in queue.EnumerateConsoleTasks())
-                            TinyConsole.WriteLine(task.CommandFile.FullName);
+                        {
+                            var isRunning = task.IsRunning;
+                            var runningDuration = isRunning && task.RunningStartDateTime is not null ? (now - task.RunningStartDateTime.Value) : (TimeSpan?)null;
+                            TinyConsole.Out.WriteLine($"{task.CommandFile.FullName}, Registered: {(task.RegisteredDateTime.Ticks == 0 ? "N/A" : task.RegisteredDateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture))}, Status:{(task.IsRunning ? "Running" : "Idling")}, Running duration: {(runningDuration is null ? "N/A" : $"{runningDuration.Value.Days * 24 + runningDuration.Value.Hours:d2}:{runningDuration.Value.Minutes:d2}:{runningDuration.Value.Seconds:d2}")}");
+                        }
+
+                        return ResultCode.Success;
+                    }
+                    else if (newArgs[0] == "stop")
+                    {
+                        if (newArgs.Count != 1)
+                        {
+                            ReportErrorMessage("Invalid argument syntax.");
+                            return ResultCode.Failed;
+                        }
+
+                        queue.StopAllServers();
 
                         return ResultCode.Success;
                     }

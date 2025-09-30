@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Globalization;
 
 namespace Experiment
 {
@@ -12,79 +13,37 @@ namespace Experiment
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:未使用のパラメーターを削除します", Justification = "<保留中>")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0022:メソッドに式本体を使用する", Justification = "<保留中>")]
-        private static void Main(string[] args)
+        private static void Main()
         {
-            Execute();
-        }
-
-        private static void Execute()
-        {
-            var baseDirectory = Path.GetDirectoryName(typeof(Program).Assembly.Location) ?? throw new Exception();
-            Environment.CurrentDirectory = baseDirectory;
-            var intermediateScriptFile = (string?)null;
-            try
             {
-                intermediateScriptFile = CreateIntermediateScriptFile(baseDirectory);
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = ShellExecutableName,
-                    Arguments = GetShellParameter(baseDirectory, intermediateScriptFile),
-                    UseShellExecute = true,
-                    CreateNoWindow = false,
-                    WindowStyle = ProcessWindowStyle.Minimized,
-                };
-                var process = Process.Start(
-                    startInfo);
-                try
-                {
-                    process?.WaitForExit();
-                }
-                finally
-                {
-                    process?.Dispose();
-                }
-            }
-            finally
-            {
-                if (intermediateScriptFile is not null)
-                {
-                    if (File.Exists(intermediateScriptFile))
-                        File.Delete(intermediateScriptFile);
-                }
-            }
-        }
-
-        private static string CreateIntermediateScriptFile(string baseDirectory)
-        {
-            var path1 = Path.Combine(baseDirectory, "script1.bat");
-            using (var writer = new StreamWriter(path1, false, Encoding.UTF8))
-            {
-                writer.WriteLine("@echo off");
-                writer.WriteLine($"chcp {Encoding.UTF8.CodePage}");
-                writer.WriteLine($"call script2.bat");
+                var d1 = DateTime.MinValue;
+                var d2 = d1.ToUniversalTime();
+                var d3 = d1.ToLocalTime();
+                Console.WriteLine($"{d1.ToString(CultureInfo.InvariantCulture)} {d1.Kind}");
+                Console.WriteLine(d2);
+                Console.WriteLine(d3);
+                Console.WriteLine(d1.Ticks);
+                Console.WriteLine(d2.Ticks);
+                Console.WriteLine(d3.Ticks);
             }
 
-            var path2 = Path.Combine(baseDirectory, "script2.bat");
-            using (var writer = new StreamWriter(path2, false, Encoding.UTF8))
+            Console.WriteLine("---");
+
             {
-                writer.WriteLine("@echo off");
-                var command = @"I:\VIDEO\Blu-ray Ripper\THE ビッグオー\test_convert_S1#1_1.bat";
-                writer.WriteLine($"call \"{command}\"");
+                var d1 = new DateTime(0, DateTimeKind.Utc);
+                var d2 = d1.ToUniversalTime();
+                var d3 = d1.ToLocalTime();
+                Console.WriteLine($"{d1.ToString(CultureInfo.InvariantCulture)} {d1.Kind}");
+                Console.WriteLine(d2);
+                Console.WriteLine(d3);
+                Console.WriteLine(d1.Ticks);
+                Console.WriteLine(d2.Ticks);
+                Console.WriteLine(d3.Ticks);
             }
 
-            return path1;
-        }
-
-        private static string ShellExecutableName => Environment.GetEnvironmentVariable("ComSpec") ?? throw new Exception();
-
-        private static string GetShellParameter(string baseDirectory, string intermediateScriptFile)
-        {
-            if (!intermediateScriptFile.StartsWith(baseDirectory, StringComparison.Ordinal))
-                throw new Exception();
-            var f = intermediateScriptFile[(baseDirectory.Length + 1)..];
-            return $"/k \"{f}\"";
+            Console.Beep();
+            Console.WriteLine("Complete");
+            _=Console.ReadLine();
         }
     }
 }
