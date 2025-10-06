@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using ConsoleTasks;
 using Palmtree;
 using Palmtree.Application;
@@ -16,6 +15,7 @@ namespace ConsoleTaskServer.CUI
         private sealed class ServerApplication
             : ApplicationBase
         {
+            private static readonly string _serverResourceNamePrefix = $"{typeof(ServerApplication).FullName}-{{B918896D-3E51-407A-8B11-533F3D20BA4C}}.serverId";
             private readonly string _title;
             private readonly Encoding _encoding;
 
@@ -33,11 +33,13 @@ namespace ConsoleTaskServer.CUI
 
             protected override ResultCode Main(string[] args)
             {
+                var (serverId, serverIdResource) = GetServerId();
                 try
                 {
+                    TinyConsole.Title = $"Task Server ({serverId})";
                     using var queue = new ConsoleTaskQueue();
                     while (true)
-                        queue.DequeueAndExecute(_encoding, Idling, Starting, Ending);
+                        queue.DequeueAndExecute(serverId, _encoding, Idling, Starting, Ending);
                 }
                 catch (OperationCanceledException)
                 {
@@ -45,6 +47,7 @@ namespace ConsoleTaskServer.CUI
                 }
                 finally
                 {
+                    serverIdResource.Dispose();
                     TinyConsole.Beep();
                     Thread.Sleep(TimeSpan.FromSeconds(0.5));
                     TinyConsole.Beep();
@@ -65,6 +68,24 @@ namespace ConsoleTaskServer.CUI
                     TinyConsole.WriteLine("Hit ENTER key to exit.");
                     TinyConsole.Beep();
                     _ = TinyConsole.ReadLine();
+                }
+            }
+
+            private static (int serverId, Mutex serverIdResource) GetServerId()
+            {
+                for (var count = 1; ; ++count)
+                {
+                    var resource = new Mutex(false, _serverResourceNamePrefix + $".{count}");
+                    try
+                    {
+                        if (resource.WaitOne(0))
+                            return (count, resource);
+                    }
+                    catch (AbandonedMutexException)
+                    {
+                    }
+
+                    resource.Dispose();
                 }
             }
 
@@ -92,14 +113,14 @@ namespace ConsoleTaskServer.CUI
                 _blinkingState = !_blinkingState;
             }
 
-            private void Starting(FilePath commandFile)
+            private static void Starting(FilePath commandFile)
             {
                 TinyConsole.ResetColor();
                 TinyConsole.Erase(ConsoleEraseMode.FromCursorToEndOfScreen);
                 TinyConsole.WriteLine($"Start task.: \"{commandFile.FullName}\"");
             }
 
-            private void Ending(FilePath commandFile)
+            private static void Ending(FilePath commandFile)
             {
                 TinyConsole.ResetColor();
                 TinyConsole.Erase(ConsoleEraseMode.FromCursorToEndOfScreen);

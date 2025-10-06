@@ -113,6 +113,20 @@ namespace ConsoleTasks
             }
         }
 
+        public int? RunningServerId
+        {
+            get
+            {
+                Validation.Assert(!string.IsNullOrEmpty(TaskId));
+
+                var additionalInfo = ConsoleTaskQueue.GetAdditionalTaskInfo(TaskId);
+                if (additionalInfo is null)
+                    return null;
+                return additionalInfo.Value.RunningServerId;
+
+            }
+        }
+
         public DateTime? RunningStartDateTime
         {
             get

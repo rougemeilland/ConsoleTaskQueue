@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Globalization;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -179,7 +179,8 @@ namespace ConsoleTask.CUI
                         {
                             var isRunning = task.IsRunning;
                             var runningDuration = isRunning && task.RunningStartDateTime is not null ? (now - task.RunningStartDateTime.Value) : (TimeSpan?)null;
-                            TinyConsole.Out.WriteLine($"{task.CommandFile.FullName}, Registered: {(task.RegisteredDateTime.Ticks == 0 ? "N/A" : task.RegisteredDateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture))}, Status:{(task.IsRunning ? "Running" : "Idling")}{(runningDuration is null ? "" : $", Running duration: {runningDuration.Value.Days * 24 + runningDuration.Value.Hours:d2}:{runningDuration.Value.Minutes:d2}:{runningDuration.Value.Seconds:d2}")}");
+                            var runningServerId = isRunning && task.RunningServerId is not null ? task.RunningServerId : null;
+                            TinyConsole.Out.WriteLine($"{task.CommandFile.FullName}, Registered: {(task.RegisteredDateTime.Ticks == 0 ? "N/A" : task.RegisteredDateTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture))}, Status:{(task.IsRunning ? $"Running{(runningServerId is not null ? $"({runningServerId.Value})" : "")}" : "Idling")}{(runningDuration is null ? "" : $", Running duration: {runningDuration.Value.Days * 24 + runningDuration.Value.Hours:d2}:{runningDuration.Value.Minutes:d2}:{runningDuration.Value.Seconds:d2}")}");
                         }
 
                         return ResultCode.Success;

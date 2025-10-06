@@ -81,7 +81,7 @@ namespace ConsoleTasks
 
         public void StopAllServers() => _stopEventObject.Set();
 
-        public void DequeueAndExecute(Encoding encoding, Action waiting, Action<FilePath> starting, Action<FilePath> ending)
+        public void DequeueAndExecute(int serverId, Encoding encoding, Action waiting, Action<FilePath> starting, Action<FilePath> ending)
         {
             if (_stopEventObject.WaitOne(0))
                 throw new OperationCanceledException();
@@ -92,7 +92,7 @@ namespace ConsoleTasks
                 if (OperatingSystem.IsWindows())
                 {
                     taskSharedMemoryHandle = SharedMemoryHandle<ActiveTaskInformation.Model>.CreateNew(GetTaskResourceName(taskState.TaskId));
-                    taskSharedMemoryHandle.Value = new ActiveTaskInformation(TaskStatus.Running, DateTime.UtcNow).ToModel();
+                    taskSharedMemoryHandle.Value = new ActiveTaskInformation(TaskStatus.Running, serverId, DateTime.UtcNow).ToModel();
                 }
 
                 starting(taskState.CommandFile);
@@ -115,7 +115,7 @@ namespace ConsoleTasks
                     try
                     {
                         if (taskSharedMemoryHandle is not null)
-                            taskSharedMemoryHandle.Value = new ActiveTaskInformation(TaskStatus.Completed, Constants.NotAvailableDateTime).ToModel();
+                            taskSharedMemoryHandle.Value = new ActiveTaskInformation(TaskStatus.Completed, serverId, Constants.NotAvailableDateTime).ToModel();
                     }
                     catch (Exception)
                     {

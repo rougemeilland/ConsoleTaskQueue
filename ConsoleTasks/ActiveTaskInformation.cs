@@ -10,19 +10,22 @@ namespace ConsoleTasks
         internal struct Model
         {
             public TaskStatus Status;
+            public int RunningServerId;
             public long RunningStartDateTimeTicks;
         }
 
-        public ActiveTaskInformation(TaskStatus status, DateTime runningStartDateTime)
+        public ActiveTaskInformation(TaskStatus status, int runningServerId, DateTime runningStartDateTime)
         {
             if (runningStartDateTime.Kind == DateTimeKind.Unspecified)
                 throw Validation.GetFailErrorException();
 
             Status = status;
+            RunningServerId = runningServerId;
             RunningStartDateTime = runningStartDateTime.ToUniversalTime();
         }
 
         public TaskStatus Status { get; }
+        public int RunningServerId { get; }
         public DateTime RunningStartDateTime { get; }
 
         internal Model ToModel()
@@ -32,6 +35,7 @@ namespace ConsoleTasks
             return new()
             {
                 Status = Status,
+                RunningServerId = RunningServerId,
                 RunningStartDateTimeTicks = RunningStartDateTime.Ticks,
             };
         }
@@ -39,6 +43,7 @@ namespace ConsoleTasks
         internal static ActiveTaskInformation FromModel(Model model)
             => new(
                 model.Status,
+                model.RunningServerId,
                 new DateTime(model.RunningStartDateTimeTicks, DateTimeKind.Utc));
     }
 }
