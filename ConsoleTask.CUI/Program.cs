@@ -193,7 +193,19 @@ namespace ConsoleTask.CUI
                             return ResultCode.Failed;
                         }
 
-                        queue.StopAllServers();
+                        queue.StopAllServers(true);
+
+                        return ResultCode.Success;
+                    }
+                    else if (newArgs[0] == "continue")
+                    {
+                        if (newArgs.Count != 1)
+                        {
+                            ReportErrorMessage("Invalid argument syntax.");
+                            return ResultCode.Failed;
+                        }
+
+                        queue.StopAllServers(false);
 
                         return ResultCode.Success;
                     }

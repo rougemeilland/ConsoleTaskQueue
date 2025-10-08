@@ -79,7 +79,13 @@ namespace ConsoleTasks
             }
         }
 
-        public void StopAllServers() => _stopEventObject.Set();
+        public void StopAllServers(bool stop)
+        {
+            if (stop)
+                _ = _stopEventObject.Set();
+            else
+                _ = _stopEventObject.Reset();
+        }
 
         public void DequeueAndExecute(int serverId, Encoding encoding, Action waiting, Action<FilePath> starting, Action<FilePath> ending)
         {
